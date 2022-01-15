@@ -1,0 +1,31 @@
+from orbit import ISS
+from skyfield import api, almanac, timelib
+
+def locate():
+    location = ISS.coordinates()
+
+    latitude = location.latitude.degrees
+    longitude = location.longitude.degrees
+    elevation = location.elevation.km
+    elevationm = location.elevation.m
+    coordinates=[latitude, longitude, elevation, elevationm]
+    return coordinates
+coords = locate()
+
+def sun(coords):
+    yr = timelib.strftime('%Y')
+    mn = timelib.strftime('%m')
+    dy = timelib.strftime('%d')
+    hr = timelib.strftime('%H')
+    mint = timelib.strftime('%M')
+    sec = timelib.strftime('%S')
+    ts = api.load.timescale()
+    eph = api.load('de421.bsp')
+    position = api.wgs84.latlon(coords[0], coords[1])
+    t0 = ts.utc(int(yr), int(mn), int(dy), int(hr), int(mint), int(sec))
+    f = almanac.sunrise_sunset(eph, position)
+    return f(t0)
+
+print(coords)
+is_sun = sun(coords)
+print(is_sun)
